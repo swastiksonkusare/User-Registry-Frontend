@@ -13,12 +13,20 @@ const validationSchema = Yup.object({
   email: Yup.string().email("Invalid email format").required("Required"),
   address1: Yup.string().required("Required"),
   zipCode: Yup.number().required("Required"),
+
   number: Yup.string()
     .matches(/^\d{10}$/, "Enter a valid mobile number")
     .required("Mobile number is required"),
 });
 
 const UserForm = () => {
+  const [users, setUsers] = useState([]);
+  const [editingUser, setEditingUser] = useState(null);
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [countrySelected, setCountrySelected] = useState("");
+  const [countryIsoSelected, setCountryIsoSelected] = useState("");
+
   const initialValues = {
     firstName: "",
     lastName: "",
@@ -28,16 +36,9 @@ const UserForm = () => {
     address1: "",
     address2: "",
     state: "",
-    country: "India",
+    country: countrySelected,
     zipCode: "",
   };
-
-  const [users, setUsers] = useState([]);
-  const [editingUser, setEditingUser] = useState(null);
-  const [countries, setCountries] = useState([]);
-  const [states, setStates] = useState([]);
-  const [countrySelected, setCountrySelected] = useState("");
-  const [countryIsoSelected, setCountryIsoSelected] = useState("AF");
 
   const config = {
     headers: {
@@ -45,8 +46,6 @@ const UserForm = () => {
         "dTZiOGNGQ1lqWXpncnNYV1J0NjRYbXR4R000Umx3TDhKVTR6ZHNJQQ==",
     },
   };
-
-  console.log(countries);
 
   const fetchData = async () => {
     try {
@@ -76,7 +75,6 @@ const UserForm = () => {
   }, [countrySelected, countryIsoSelected]);
 
   const onEdit = async (user) => {
-    console.log(user);
     setEditingUser(user);
   };
   const onDelete = async (user) => {
@@ -89,8 +87,9 @@ const UserForm = () => {
   };
 
   const handleSubmit = async (values, { resetForm }) => {
-    console.log(values);
+    console.log(countrySelected);
 
+    values.country = countrySelected;
     try {
       console.log("Form values:", values);
       await axios.post("http://localhost:8080/users/create", values);
@@ -155,27 +154,18 @@ const UserForm = () => {
               name="country"
               as="select"
               onChange={(e) => {
-                setCountrySelected(
-                  e.target.options[e.target.selectedIndex].getAttribute(
-                    "data-country"
-                  )
-                );
+                setCountrySelected(e.target.value);
                 setCountryIsoSelected(
                   e.target.options[e.target.selectedIndex].getAttribute(
                     "data-iso"
                   )
                 );
               }}
-              value={countrySelected.name}
+              value={countrySelected}
             >
               {countries.length > 0 &&
                 countries.map((c) => (
-                  <option
-                    key={c.id}
-                    value={c.name}
-                    data-country={c} // Add the iso2 code as a custom data attribute
-                    data-iso={c.iso2}
-                  >
+                  <option key={c.id} value={c.name} data-iso={c.iso2}>
                     {c.name}
                   </option>
                 ))}
