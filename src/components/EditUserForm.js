@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import InputField from "./InputField";
 import axios from "axios";
 
-const EditUserForm = ({ user, fetchUsers, setEditingUser }) => {
+const EditUserForm = ({ user, fetchData, setEditingUser, countries }) => {
   console.log(user);
 
   const initialValues = {
@@ -35,7 +35,7 @@ const EditUserForm = ({ user, fetchUsers, setEditingUser }) => {
     try {
       await axios.put(`http://localhost:8080/users/${user._id}`, values);
       setEditingUser(null);
-      fetchUsers();
+      fetchData();
     } catch (error) {
       console.log(error);
     }
@@ -55,7 +55,15 @@ const EditUserForm = ({ user, fetchUsers, setEditingUser }) => {
         <InputField label="Address 1" name="address1" />
         <InputField label="Address 2" name="address2" optional="Optional" />
         <InputField label="State" name="state" />
-        <InputField label="Country" name="country" />
+        {/* <InputField label="Country" name="country" /> */}
+        <Field name="country" as="select">
+          {countries.length > 0 &&
+            countries.map((c) => (
+              <option key={c.id} value={c.name}>
+                {c.name}
+              </option>
+            ))}
+        </Field>
         <InputField label="Zip Code" name="zipCode" type="number" />
         <div>
           <label>Mobile Number:</label>

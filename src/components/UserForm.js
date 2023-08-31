@@ -28,21 +28,52 @@ const UserForm = () => {
     address1: "",
     address2: "",
     state: "",
-    country: "",
+    country: "India",
     zipCode: "",
   };
 
   const [users, setUsers] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
+  const [countries, setCountries] = useState([]);
+  const [states, setStates] = useState([]);
+  const [countrySelected, setCountrySelected] = useState("");
+  const [countryIsoSelected, setCountryIsoSelected] = useState("AF");
 
-  const fetchUsers = async () => {
-    const { data } = await axios.get("http://localhost:8080/users");
-
-    setUsers(data);
+  const config = {
+    headers: {
+      "X-CSCAPI-KEY":
+        "dTZiOGNGQ1lqWXpncnNYV1J0NjRYbXR4R000Umx3TDhKVTR6ZHNJQQ==",
+    },
   };
+
+  console.log(countries);
+
+  const fetchData = async () => {
+    try {
+      const countriesResponse = axios.get(
+        "https://api.countrystatecity.in/v1/countries",
+        config
+      );
+
+      const usersResponse = axios.get("http://localhost:8080/users");
+
+      // Execute both requests in parallel
+      const [countriesData, usersData] = await axios.all([
+        countriesResponse,
+        usersResponse,
+      ]);
+
+      setCountries(countriesData.data);
+      setUsers(usersData.data);
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
   useEffect(() => {
-    fetchUsers();
-  }, []);
+    fetchData();
+    fetchStatesByCountry(countryIsoSelected);
+  }, [countrySelected, countryIsoSelected]);
 
   const onEdit = async (user) => {
     console.log(user);
@@ -51,25 +82,40 @@ const UserForm = () => {
   const onDelete = async (user) => {
     try {
       await axios.delete(`http://localhost:8080/users/${user._id}`);
-      fetchUsers();
+      fetchData();
     } catch (error) {
       console.log(error);
     }
   };
 
-  // console.log(users);
-
   const handleSubmit = async (values, { resetForm }) => {
+    console.log(values);
+
     try {
       console.log("Form values:", values);
       await axios.post("http://localhost:8080/users/create", values);
       resetForm();
-      fetchUsers();
+      fetchData();
     } catch (error) {
       console.log(error);
     }
 
     // Perform submit action, e.g., sending data to the server
+  };
+
+  // console.log(countries);
+
+  const fetchStatesByCountry = async (countryIsoSelected) => {
+    try {
+      const { data } = await axios.get(
+        `https://api.countrystatecity.in/v1/countries/${countryIsoSelected}/states`,
+        config
+      );
+
+      setStates(data);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -84,11 +130,57 @@ const UserForm = () => {
           <InputField label="First Name" name="firstName" />
           <InputField label="Last Name" name="lastName" />
           <InputField label="Email" name="email" type="email" />
-          {/* <InputField label="Number" name="number" /> */}
           <InputField label="Address 1" name="address1" />
           <InputField label="Address 2" name="address2" optional="Optional" />
-          <InputField label="State" name="state" />
-          <InputField label="Country" name="country" />
+
+          <div className="mb-5">
+            <label>States:</label>
+            <Field name="state" as="select">
+              {states.length > 0 &&
+                states.map((s) => (
+                  <option
+                    key={s.id}
+                    value={s.name}
+                    data-iso2={s.iso2} // Add the iso2 code as a custom data attribute
+                  >
+                    {s.name}
+                  </option>
+                ))}
+            </Field>
+          </div>
+
+          <div className="mb-5">
+            <label>Country:</label>
+            <Field
+              name="country"
+              as="select"
+              onChange={(e) => {
+                setCountrySelected(
+                  e.target.options[e.target.selectedIndex].getAttribute(
+                    "data-country"
+                  )
+                );
+                setCountryIsoSelected(
+                  e.target.options[e.target.selectedIndex].getAttribute(
+                    "data-iso"
+                  )
+                );
+              }}
+              value={countrySelected.name}
+            >
+              {countries.length > 0 &&
+                countries.map((c) => (
+                  <option
+                    key={c.id}
+                    value={c.name}
+                    data-country={c} // Add the iso2 code as a custom data attribute
+                    data-iso={c.iso2}
+                  >
+                    {c.name}
+                  </option>
+                ))}
+            </Field>
+          </div>
           <InputField label="Zip Code" name="zipCode" />
           <div>
             <label>Mobile Number:</label>
@@ -119,8 +211,9 @@ const UserForm = () => {
       {editingUser && (
         <EditUserForm
           user={editingUser}
-          fetchUsers={fetchUsers}
+          fetchData={fetchData}
           setEditingUser={setEditingUser}
+          countries={countries}
         />
       )}
     </div>
