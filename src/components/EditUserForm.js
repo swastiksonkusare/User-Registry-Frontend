@@ -4,20 +4,20 @@ import * as Yup from "yup";
 import InputField from "./InputField";
 import axios from "axios";
 
-const EditUserForm = ({ user, fetchData, setEditingUser, countries }) => {
-  console.log(user);
+const EditUserForm = ({ fetchData, state, setState }) => {
+  console.log(state.editingUser);
 
   const initialValues = {
-    firstName: user.firstName,
-    lastName: user.lastName,
-    email: user.email,
-    number: user.number,
-    address1: user.address1,
-    address2: user?.address2,
-    state: user.state,
-    country: user.country,
-    zipCode: user.zipCode,
-    countryCode: user.countryCode,
+    firstName: state.editingUser.firstName,
+    lastName: state.editingUser.lastName,
+    email: state.editingUser.email,
+    number: state.editingUser.number,
+    address1: state.editingUser.address1,
+    address2: state.editingUser?.address2,
+    state: state.editingUser.state,
+    country: state.editingUser.country,
+    zipCode: state.editingUser.zipCode,
+    countryCode: state.editingUser.countryCode,
   };
 
   const validationSchema = Yup.object({
@@ -33,9 +33,16 @@ const EditUserForm = ({ user, fetchData, setEditingUser, countries }) => {
 
   const handleUpdate = async (values) => {
     try {
-      await axios.put(`http://localhost:8080/users/${user._id}`, values);
+      await axios.put(
+        `http://localhost:8080/users/${state.editingUser._id}`,
+        values
+      );
       alert("User updated");
-      setEditingUser(null);
+
+      setState((prevState) => ({
+        ...prevState,
+        editingUser: null,
+      }));
       fetchData();
     } catch (error) {
       console.log(error);
@@ -56,7 +63,6 @@ const EditUserForm = ({ user, fetchData, setEditingUser, countries }) => {
               <InputField label="First Name" name="firstName" />
               <InputField label="Last Name" name="lastName" />
               <InputField label="Email" name="email" type="email" />
-              {/* <InputField label="Mobile" name="number" /> */}
               <InputField label="Address 1" name="address1" />
               <InputField
                 label="Address 2"
@@ -64,10 +70,9 @@ const EditUserForm = ({ user, fetchData, setEditingUser, countries }) => {
                 optional="Optional"
               />
               <InputField label="State" name="state" />
-              {/* <InputField label="Country" name="country" /> */}
               <Field name="country" as="select">
-                {countries.length > 0 &&
-                  countries.map((c) => (
+                {state.countries.length > 0 &&
+                  state.countries.map((c) => (
                     <option key={c.id} value={c.name}>
                       {c.name}
                     </option>
@@ -87,7 +92,7 @@ const EditUserForm = ({ user, fetchData, setEditingUser, countries }) => {
               <div className="mt-3 flex justify-evenly">
                 <button
                   className="px-4 py-2 mr-2 bg-red-500 text-white rounded-md"
-                  onClick={() => setEditingUser(null)}
+                  onClick={() => setState({ ...state, editingUser: null })}
                 >
                   Cancel
                 </button>

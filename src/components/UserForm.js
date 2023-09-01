@@ -6,13 +6,17 @@ import InputField from "./InputField";
 import axios from "axios";
 import UserCard from "./UserCard";
 import EditUserForm from "./EditUserForm";
+import StateList from "./StateList";
+import CountryList from "./CountryList";
 
 const validationSchema = Yup.object({
   firstName: Yup.string().required("Required").min(5, "Minimum 5 characters"),
   lastName: Yup.string().required("Required").min(5, "Minimum 5 characters"),
   email: Yup.string().email("Invalid email format").required("Required"),
   address1: Yup.string().required("Required"),
-  zipCode: Yup.number().required("Required"),
+  zipCode: Yup.string()
+    .matches(/^\d+$/, "Enter a valid numeric ZIP code")
+    .required("Required"),
 
   number: Yup.string()
     .matches(/^\d{10}$/, "Enter a valid mobile number")
@@ -20,12 +24,14 @@ const validationSchema = Yup.object({
 });
 
 const UserForm = () => {
-  const [users, setUsers] = useState([]);
-  const [editingUser, setEditingUser] = useState(null);
-  const [countries, setCountries] = useState([]);
-  const [states, setStates] = useState([]);
-  const [countrySelected, setCountrySelected] = useState("");
-  const [countryIsoSelected, setCountryIsoSelected] = useState("");
+  const [state, setState] = useState({
+    users: [],
+    editingUser: null,
+    countries: [],
+    states: [],
+    countrySelected: "",
+    countryIsoSelected: "",
+  });
 
   const initialValues = {
     firstName: "",
@@ -36,14 +42,13 @@ const UserForm = () => {
     address1: "",
     address2: "",
     state: "",
-    country: countrySelected,
+    country: state.countrySelected,
     zipCode: "",
   };
 
   const config = {
     headers: {
-      "X-CSCAPI-KEY":
-        "dTZiOGNGQ1lqWXpncnNYV1J0NjRYbXR4R000Umx3TDhKVTR6ZHNJQQ==",
+      "X-CSCAPI-KEY": process.env.REACT_APP_API_KEY,
     },
   };
 
@@ -62,8 +67,15 @@ const UserForm = () => {
         usersResponse,
       ]);
 
-      setCountries(countriesData.data);
-      setUsers(usersData.data);
+      setState((prevState) => ({
+        ...prevState,
+        countries: countriesData.data,
+      }));
+
+      setState((prevState) => ({
+        ...prevState,
+        users: usersData.data,
+      }));
     } catch (error) {
       console.error("Error:", error);
     }
@@ -71,11 +83,29 @@ const UserForm = () => {
 
   useEffect(() => {
     fetchData();
-    fetchStatesByCountry(countryIsoSelected);
-  }, [countrySelected, countryIsoSelected]);
+    fetchStatesByCountry(state.countryIsoSelected);
+  }, [state.countrySelected, state.countryIsoSelected]);
+
+  const handleSubmit = async (values, { resetForm }) => {
+    console.log(state.countrySelected);
+
+    values.country = state.countrySelected;
+    try {
+      console.log("Form values:", values);
+      await axios.post("http://localhost:8080/users/create", values);
+      alert("User Created");
+      resetForm();
+      fetchData();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const onEdit = async (user) => {
-    setEditingUser(user);
+    setState((prevState) => ({
+      ...prevState,
+      editingUser: user,
+    }));
   };
   const onDelete = async (user) => {
     try {
@@ -87,25 +117,6 @@ const UserForm = () => {
     }
   };
 
-  const handleSubmit = async (values, { resetForm }) => {
-    console.log(countrySelected);
-
-    values.country = countrySelected;
-    try {
-      console.log("Form values:", values);
-      await axios.post("http://localhost:8080/users/create", values);
-      alert("User Created");
-      resetForm();
-      fetchData();
-    } catch (error) {
-      console.log(error);
-    }
-
-    // Perform submit action, e.g., sending data to the server
-  };
-
-  // console.log(countries);
-
   const fetchStatesByCountry = async (countryIsoSelected) => {
     try {
       const { data } = await axios.get(
@@ -113,7 +124,10 @@ const UserForm = () => {
         config
       );
 
-      setStates(data);
+      setState((prevState) => ({
+        ...prevState,
+        states: data,
+      }));
     } catch (error) {
       console.log(error);
     }
@@ -134,45 +148,9 @@ const UserForm = () => {
           <InputField label="Address 1" name="address1" />
           <InputField label="Address 2" name="address2" optional="Optional" />
 
-          <div className="mb-5">
-            <label>States:</label>
-            <Field name="state" as="select">
-              {states.length > 0 &&
-                states.map((s) => (
-                  <option
-                    key={s.id}
-                    value={s.name}
-                    data-iso2={s.iso2} // Add the iso2 code as a custom data attribute
-                  >
-                    {s.name}
-                  </option>
-                ))}
-            </Field>
-          </div>
+          <StateList state={state} />
 
-          <div className="mb-5">
-            <label>Country:</label>
-            <Field
-              name="country"
-              as="select"
-              onChange={(e) => {
-                setCountrySelected(e.target.value);
-                setCountryIsoSelected(
-                  e.target.options[e.target.selectedIndex].getAttribute(
-                    "data-iso"
-                  )
-                );
-              }}
-              value={countrySelected}
-            >
-              {countries.length > 0 &&
-                countries.map((c) => (
-                  <option key={c.id} value={c.name} data-iso={c.iso2}>
-                    {c.name}
-                  </option>
-                ))}
-            </Field>
-          </div>
+          <CountryList state={state} setState={setState} />
           <InputField label="Zip Code" name="zipCode" />
           <div>
             <label>Mobile Number:</label>
@@ -192,21 +170,16 @@ const UserForm = () => {
         </Form>
       </Formik>
       <div className="grid lg:grid-cols-2 gap-4 mt-8">
-        {users.length > 0 ? (
-          users.map((user) => (
+        {state.users.length > 0 ? (
+          state.users.map((user) => (
             <UserCard user={user} onEdit={onEdit} onDelete={onDelete} />
           ))
         ) : (
           <h1>No Results Found</h1>
         )}
       </div>
-      {editingUser && (
-        <EditUserForm
-          user={editingUser}
-          fetchData={fetchData}
-          setEditingUser={setEditingUser}
-          countries={countries}
-        />
+      {state.editingUser && (
+        <EditUserForm fetchData={fetchData} state={state} setState={setState} />
       )}
     </div>
   );
