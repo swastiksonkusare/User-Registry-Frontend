@@ -37,7 +37,7 @@ const EditUserForm = ({ fetchData, state, setState }) => {
 
     try {
       await axios.put(
-        `http://localhost:8080/users/${state.editingUser._id}`,
+        `https://user-registry-backend.onrender.com/users/${state.editingUser._id}`,
         values
       );
       alert("User updated");
