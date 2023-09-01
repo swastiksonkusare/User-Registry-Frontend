@@ -23,6 +23,8 @@ const validationSchema = Yup.object({
     .required("Mobile number is required"),
 });
 
+// const route = "http://localhost:8080/"
+
 const UserForm = () => {
   const [state, setState] = useState({
     users: [],
@@ -39,7 +41,7 @@ const UserForm = () => {
     lastName: "",
     email: "",
     number: "",
-    countryCode: "+91",
+    countryCode: "",
     address1: "",
     address2: "",
     state: "",
@@ -60,9 +62,7 @@ const UserForm = () => {
         config
       );
 
-      const usersResponse = axios.get(
-        "https://user-registry-backend.onrender.com/users"
-      );
+      const usersResponse = axios.get("http://localhost:8080/users");
 
       const [countriesData, usersData] = await axios.all([
         countriesResponse,
@@ -127,11 +127,12 @@ const UserForm = () => {
 
   const handleSubmit = async (values, { resetForm }) => {
     values.country = state.countrySelected;
+    values.countryCode = state.countryDetails.phonecode;
+    console.log(values);
+    // console.log(state);
+
     try {
-      await axios.post(
-        "https://user-registry-backend.onrender.com/users/create",
-        values
-      );
+      await axios.post("http://localhost:8080/users/create", values);
       alert("User Created");
       resetForm();
       fetchData();
@@ -148,9 +149,7 @@ const UserForm = () => {
   };
   const onDelete = async (user) => {
     try {
-      await axios.delete(
-        `https://user-registry-backend.onrender.com/users/${user._id}`
-      );
+      await axios.delete(`http://localhost:8080/users/${user._id}`);
       alert("User Deleted");
       fetchData();
     } catch (error) {
@@ -180,7 +179,15 @@ const UserForm = () => {
           <InputField label="Zip Code" name="zipCode" />
           <div>
             <label>Mobile Number:</label>
-            <Field name="countryCode" as="select">
+            <Field
+              name="countryCode"
+              as="select"
+              value={
+                !state?.countryCode
+                  ? state?.editingUser?.countryCode
+                  : state?.countryCode
+              }
+            >
               <option value={`+${state.countryDetails.phonecode}`}>
                 +{state.countryDetails.phonecode}
               </option>

@@ -35,9 +35,13 @@ const EditUserForm = ({ fetchData, state, setState }) => {
   const handleUpdate = async (values) => {
     values.country = state.countrySelected;
 
+    console.log(values);
+    console.log(state);
+    // values.state = state.
+
     try {
       await axios.put(
-        `https://user-registry-backend.onrender.com/users/${state.editingUser._id}`,
+        `http://localhost:8080/users/${state.editingUser._id}`,
         values
       );
       alert("User updated");
