@@ -19,7 +19,11 @@ const CountryList = ({ setState, state }) => {
               e.target.options[e.target.selectedIndex].getAttribute("data-iso"),
           }));
         }}
-        value={state.countrySelected}
+        value={
+          !state?.countrySelected
+            ? state?.editingUser?.country
+            : state?.countrySelected
+        }
       >
         {state.countries.length > 0 &&
           state.countries.map((c) => (

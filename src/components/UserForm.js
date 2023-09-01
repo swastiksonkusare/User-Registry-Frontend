@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import InputField from "./InputField";
-
 import axios from "axios";
+
+import InputField from "./InputField";
 import UserCard from "./UserCard";
 import EditUserForm from "./EditUserForm";
 import StateList from "./StateList";
@@ -31,6 +31,7 @@ const UserForm = () => {
     states: [],
     countrySelected: "",
     countryIsoSelected: "",
+    countryDetails: {},
   });
 
   const initialValues = {
@@ -61,7 +62,6 @@ const UserForm = () => {
 
       const usersResponse = axios.get("http://localhost:8080/users");
 
-      // Execute both requests in parallel
       const [countriesData, usersData] = await axios.all([
         countriesResponse,
         usersResponse,
@@ -84,6 +84,7 @@ const UserForm = () => {
   useEffect(() => {
     fetchData();
     fetchStatesByCountry(state.countryIsoSelected);
+    fetchCountryDetails(state.countryIsoSelected);
   }, [state.countrySelected, state.countryIsoSelected]);
 
   const handleSubmit = async (values, { resetForm }) => {
@@ -118,6 +119,8 @@ const UserForm = () => {
   };
 
   const fetchStatesByCountry = async (countryIsoSelected) => {
+    if (!countryIsoSelected) return;
+
     try {
       const { data } = await axios.get(
         `https://api.countrystatecity.in/v1/countries/${countryIsoSelected}/states`,
@@ -127,6 +130,24 @@ const UserForm = () => {
       setState((prevState) => ({
         ...prevState,
         states: data,
+      }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchCountryDetails = async (countryIsoSelected) => {
+    if (!countryIsoSelected) return;
+
+    try {
+      const { data } = await axios.get(
+        `https://api.countrystatecity.in/v1/countries/${countryIsoSelected}`,
+        config
+      );
+
+      setState((prevState) => ({
+        ...prevState,
+        countryDetails: data,
       }));
     } catch (error) {
       console.log(error);
@@ -151,13 +172,14 @@ const UserForm = () => {
           <StateList state={state} />
 
           <CountryList state={state} setState={setState} />
+          
           <InputField label="Zip Code" name="zipCode" />
           <div>
             <label>Mobile Number:</label>
             <Field name="countryCode" as="select">
-              <option value="+1">+1</option>
-              <option value="+91">+91</option>
-              <option value="+44">+44</option>
+              <option value={`+${state.countryDetails.phonecode}`}>
+                +{state.countryDetails.phonecode}
+              </option>
             </Field>
             <InputField name="number" />
           </div>

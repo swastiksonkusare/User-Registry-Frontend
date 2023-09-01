@@ -3,9 +3,11 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import InputField from "./InputField";
 import axios from "axios";
+import StateList from "./StateList";
+import CountryList from "./CountryList";
 
 const EditUserForm = ({ fetchData, state, setState }) => {
-  console.log(state.editingUser);
+  console.log(state);
 
   const initialValues = {
     firstName: state.editingUser.firstName,
@@ -32,6 +34,8 @@ const EditUserForm = ({ fetchData, state, setState }) => {
   });
 
   const handleUpdate = async (values) => {
+    values.country = state.countrySelected;
+
     try {
       await axios.put(
         `http://localhost:8080/users/${state.editingUser._id}`,
@@ -69,22 +73,17 @@ const EditUserForm = ({ fetchData, state, setState }) => {
                 name="address2"
                 optional="Optional"
               />
-              <InputField label="State" name="state" />
-              <Field name="country" as="select">
-                {state.countries.length > 0 &&
-                  state.countries.map((c) => (
-                    <option key={c.id} value={c.name}>
-                      {c.name}
-                    </option>
-                  ))}
-              </Field>
+
+              <StateList state={state} />
+
+              <CountryList state={state} setState={setState} />
               <InputField label="Zip Code" name="zipCode" type="number" />
               <div>
                 <label>Mobile Number:</label>
                 <Field name="countryCode" as="select">
-                  <option value="+1">+1</option>
-                  <option value="+91">+91</option>
-                  <option value="+44">+44</option>
+                  <option value={`+${state.countryDetails.phonecode}`}>
+                    +{state.countryDetails.phonecode}
+                  </option>
                 </Field>
                 <InputField type="text" name="number" />
               </div>
