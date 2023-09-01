@@ -1,14 +1,13 @@
 import React from "react";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import InputField from "./InputField";
 import axios from "axios";
+
+import InputField from "./InputField";
 import StateList from "./StateList";
 import CountryList from "./CountryList";
 
 const EditUserForm = ({ fetchData, state, setState }) => {
-  console.log(state);
-
   const initialValues = {
     firstName: state.editingUser.firstName,
     lastName: state.editingUser.lastName,

@@ -81,43 +81,6 @@ const UserForm = () => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-    fetchStatesByCountry(state.countryIsoSelected);
-    fetchCountryDetails(state.countryIsoSelected);
-  }, [state.countrySelected, state.countryIsoSelected]);
-
-  const handleSubmit = async (values, { resetForm }) => {
-    console.log(state.countrySelected);
-
-    values.country = state.countrySelected;
-    try {
-      console.log("Form values:", values);
-      await axios.post("http://localhost:8080/users/create", values);
-      alert("User Created");
-      resetForm();
-      fetchData();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const onEdit = async (user) => {
-    setState((prevState) => ({
-      ...prevState,
-      editingUser: user,
-    }));
-  };
-  const onDelete = async (user) => {
-    try {
-      await axios.delete(`http://localhost:8080/users/${user._id}`);
-      alert("User Deleted");
-      fetchData();
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const fetchStatesByCountry = async (countryIsoSelected) => {
     if (!countryIsoSelected) return;
 
@@ -154,6 +117,40 @@ const UserForm = () => {
     }
   };
 
+  useEffect(() => {
+    fetchData();
+    fetchStatesByCountry(state.countryIsoSelected);
+    fetchCountryDetails(state.countryIsoSelected);
+  }, [state.countrySelected, state.countryIsoSelected]);
+
+  const handleSubmit = async (values, { resetForm }) => {
+    values.country = state.countrySelected;
+    try {
+      await axios.post("http://localhost:8080/users/create", values);
+      alert("User Created");
+      resetForm();
+      fetchData();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onEdit = async (user) => {
+    setState((prevState) => ({
+      ...prevState,
+      editingUser: user,
+    }));
+  };
+  const onDelete = async (user) => {
+    try {
+      await axios.delete(`http://localhost:8080/users/${user._id}`);
+      alert("User Deleted");
+      fetchData();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-6xl p-4">
       <h2 className="text-xl mb-4 text-center font-bold">Create User</h2>
@@ -172,7 +169,7 @@ const UserForm = () => {
           <StateList state={state} />
 
           <CountryList state={state} setState={setState} />
-          
+
           <InputField label="Zip Code" name="zipCode" />
           <div>
             <label>Mobile Number:</label>

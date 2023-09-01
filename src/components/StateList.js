@@ -1,8 +1,6 @@
 import { Field } from "formik";
 
 const StateList = ({ state }) => {
-  // console.log(state);
-
   return (
     <div className="mb-5">
       <label>States:</label>
