@@ -38,7 +38,7 @@
       "last 1 safari version"
     ]
   },
-  "proxy":"https://user-registry-backend.onrender.com",
+  "proxy":"https://user-registry-backend.onrender.com/users",
   "devDependencies": {
     "tailwindcss": "^3.3.3"
   }
