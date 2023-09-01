@@ -80,6 +80,7 @@ const UserForm = () => {
   const onDelete = async (user) => {
     try {
       await axios.delete(`http://localhost:8080/users/${user._id}`);
+      alert("User Deleted");
       fetchData();
     } catch (error) {
       console.log(error);
@@ -93,6 +94,7 @@ const UserForm = () => {
     try {
       console.log("Form values:", values);
       await axios.post("http://localhost:8080/users/create", values);
+      alert("User Created");
       resetForm();
       fetchData();
     } catch (error) {
@@ -119,7 +121,7 @@ const UserForm = () => {
 
   return (
     <div className="mx-auto max-w-6xl p-4">
-      <h2 className="text-xl mb-4 text-center">Create User</h2>
+      <h2 className="text-xl mb-4 text-center font-bold">Create User</h2>
       <Formik
         initialValues={initialValues}
         validationSchema={validationSchema}

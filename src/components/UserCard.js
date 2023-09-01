@@ -23,7 +23,7 @@ const UserCard = ({ user, onEdit, onDelete }) => {
           Mobile: {user.countryCode} {user.number}
         </p>
       </div>
-      <div className="absolute top-8 right-8 flex flex-col gap-8">
+      <div className="flex justify-end">
         <button
           className="px-4 py-2 mr-2 bg-blue-500 text-white rounded-md"
           onClick={() => onEdit(user)}
