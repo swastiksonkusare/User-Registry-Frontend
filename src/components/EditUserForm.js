@@ -32,8 +32,13 @@ const EditUserForm = ({ fetchData, state, setState }) => {
       .required("Mobile number is required"),
   });
 
+  // console.log(state);
+
   const handleUpdate = async (values) => {
     values.country = state.countrySelected;
+    values.state = state.stateSelected
+      ? state.stateSelected
+      : state.states[0].name;
 
     console.log(values);
     console.log(state);
@@ -77,7 +82,7 @@ const EditUserForm = ({ fetchData, state, setState }) => {
                 optional="Optional"
               />
 
-              <StateList state={state} />
+              <StateList state={state} setState={setState}  />
 
               <CountryList state={state} setState={setState} />
               <InputField label="Zip Code" name="zipCode" type="number" />

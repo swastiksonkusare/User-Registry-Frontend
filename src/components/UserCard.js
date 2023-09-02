@@ -20,7 +20,7 @@ const UserCard = ({ user, onEdit, onDelete }) => {
       <div className="text-left">
         <p>Email: {user.email}</p>
         <p>
-          Mobile: {user.countryCode} {user.number}
+          Mobile: +{user.countryCode} {user.number}
         </p>
       </div>
       <div className="flex justify-end">

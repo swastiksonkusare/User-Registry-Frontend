@@ -32,6 +32,7 @@ const UserForm = () => {
     countries: [],
     states: [],
     countrySelected: "",
+    stateSelected: "",
     countryIsoSelected: "",
     countryDetails: {},
   });
@@ -128,8 +129,9 @@ const UserForm = () => {
   const handleSubmit = async (values, { resetForm }) => {
     values.country = state.countrySelected;
     values.countryCode = state.countryDetails.phonecode;
+    values.state = state.stateSelected;
     console.log(values);
-    // console.log(state);
+    console.log(state);
 
     try {
       await axios.post("http://localhost:8080/users/create", values);
@@ -142,6 +144,7 @@ const UserForm = () => {
   };
 
   const onEdit = async (user) => {
+    console.log(user);
     setState((prevState) => ({
       ...prevState,
       editingUser: user,
@@ -172,7 +175,7 @@ const UserForm = () => {
           <InputField label="Address 1" name="address1" />
           <InputField label="Address 2" name="address2" optional="Optional" />
 
-          <StateList state={state} />
+          <StateList state={state} setState={setState} />
 
           <CountryList state={state} setState={setState} />
 
