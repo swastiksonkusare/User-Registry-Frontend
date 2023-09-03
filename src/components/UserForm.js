@@ -61,7 +61,9 @@ const UserForm = () => {
         config
       );
 
-      const usersResponse = axios.get("http://localhost:8080/users");
+      const usersResponse = axios.get(
+        "https://user-registry-backend.onrender.com/users"
+      );
 
       const [countriesData, usersData] = await axios.all([
         countriesResponse,
@@ -130,7 +132,10 @@ const UserForm = () => {
     values.state = state.stateSelected;
 
     try {
-      await axios.post("http://localhost:8080/users/create", values);
+      await axios.post(
+        "https://user-registry-backend.onrender.com/users/create",
+        values
+      );
       alert("User Created");
       resetForm();
       fetchData();
@@ -142,7 +147,6 @@ const UserForm = () => {
         stateSelected: "",
         countryIsoSelected: "",
       }));
-      console.log(state);
     } catch (error) {
       console.log(error);
     }
@@ -156,7 +160,9 @@ const UserForm = () => {
   };
   const onDelete = async (user) => {
     try {
-      await axios.delete(`http://localhost:8080/users/${user._id}`);
+      await axios.delete(
+        `https://user-registry-backend.onrender.com/users/${user._id}`
+      );
       alert("User Deleted");
       fetchData();
     } catch (error) {

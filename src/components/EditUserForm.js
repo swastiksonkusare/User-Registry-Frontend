@@ -32,11 +32,7 @@ const EditUserForm = ({ fetchData, state, setState }) => {
       .required("Mobile number is required"),
   });
 
-  // console.log(state);
-
   const handleUpdate = async (values) => {
-    console.log(values);
-
     values.country = state.countrySelected;
     values.state = state.stateSelected
       ? state.stateSelected
@@ -45,7 +41,7 @@ const EditUserForm = ({ fetchData, state, setState }) => {
 
     try {
       await axios.put(
-        `http://localhost:8080/users/${state.editingUser._id}`,
+        `https://user-registry-backend.onrender.com/users/${state.editingUser._id}`,
         values
       );
       alert("User updated");
@@ -65,7 +61,7 @@ const EditUserForm = ({ fetchData, state, setState }) => {
   return (
     <div class="fixed top-0 left-0 w-full  h-full bg-black bg-opacity-50 flex justify-center items-center ">
       <div className="max-h-96 overflow-y-auto">
-        <div class="bg-white p-10 rounded-lg shadow-2xl my-6 ">
+        <div class="bg-white p-10 rounded-lg shadow-2xl m-6 ">
           <h2 className="text-lg font-bold mb-4 text-center">Edit User</h2>
           <Formik
             initialValues={initialValues}

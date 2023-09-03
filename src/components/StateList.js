@@ -21,7 +21,7 @@ const StateList = ({ state, setState }) => {
   };
 
   return (
-    <div className="mb-5">
+    <div className="mb-5 flex flex-wrap">
       <label>States:</label>
       <Field
         name="state"
