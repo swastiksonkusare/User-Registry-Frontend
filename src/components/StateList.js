@@ -2,8 +2,6 @@ import { Field } from "formik";
 import { useEffect } from "react";
 
 const StateList = ({ state, setState }) => {
-  console.log(state);
-
   useEffect(() => {
     if (state.countrySelected && state.states.length > 0 && setState) {
       setState((prevState) => ({
@@ -18,10 +16,6 @@ const StateList = ({ state, setState }) => {
       setState((prevState) => ({
         ...prevState,
         stateSelected: e.target.value,
-        editingUser: {
-          ...prevState.editingUser,
-          state: "",
-        },
       }));
     }
   };
@@ -33,9 +27,7 @@ const StateList = ({ state, setState }) => {
         name="state"
         as="select"
         onChange={handleStateChange}
-        value={
-          state.editingUser ? state.editingUser.state : state.stateSelected
-        }
+        value={state.stateSelected}
       >
         {!state?.countrySelected ? (
           <option

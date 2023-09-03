@@ -35,14 +35,13 @@ const EditUserForm = ({ fetchData, state, setState }) => {
   // console.log(state);
 
   const handleUpdate = async (values) => {
+    console.log(values);
+
     values.country = state.countrySelected;
     values.state = state.stateSelected
       ? state.stateSelected
       : state.states[0].name;
-
-    console.log(values);
-    console.log(state);
-    // values.state = state.
+    values.countryCode = state.countryDetails.phonecode;
 
     try {
       await axios.put(
@@ -54,6 +53,8 @@ const EditUserForm = ({ fetchData, state, setState }) => {
       setState((prevState) => ({
         ...prevState,
         editingUser: null,
+        stateSelected: "",
+        countrySelected: "",
       }));
       fetchData();
     } catch (error) {
@@ -82,7 +83,7 @@ const EditUserForm = ({ fetchData, state, setState }) => {
                 optional="Optional"
               />
 
-              <StateList state={state} setState={setState}  />
+              <StateList state={state} setState={setState} />
 
               <CountryList state={state} setState={setState} />
               <InputField label="Zip Code" name="zipCode" type="number" />

@@ -23,8 +23,6 @@ const validationSchema = Yup.object({
     .required("Mobile number is required"),
 });
 
-// const route = "http://localhost:8080/"
-
 const UserForm = () => {
   const [state, setState] = useState({
     users: [],
@@ -130,21 +128,27 @@ const UserForm = () => {
     values.country = state.countrySelected;
     values.countryCode = state.countryDetails.phonecode;
     values.state = state.stateSelected;
-    console.log(values);
-    console.log(state);
 
     try {
       await axios.post("http://localhost:8080/users/create", values);
       alert("User Created");
       resetForm();
       fetchData();
+      state.countrySelected = "";
+      state.stateSelected = "";
+      setState((prevState) => ({
+        ...prevState,
+        countrySelected: "",
+        stateSelected: "",
+        countryIsoSelected: "",
+      }));
+      console.log(state);
     } catch (error) {
       console.log(error);
     }
   };
 
   const onEdit = async (user) => {
-    console.log(user);
     setState((prevState) => ({
       ...prevState,
       editingUser: user,
